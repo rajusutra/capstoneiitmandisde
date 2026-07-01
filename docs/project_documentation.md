@@ -4,6 +4,12 @@
 
 **Track:** SDAI
 **Team Size:** 5 Members
+** Team Members: 
+1) Ayushman Singh
+2) Raju Sutradhar
+3) Aryan Kumar
+4) Devansh Saxena
+5) Ambika Darare
 **Duration:** 10 Days
 **Domain:** Workforce safety and scheduling
 
