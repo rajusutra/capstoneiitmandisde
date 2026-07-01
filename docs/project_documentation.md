@@ -215,6 +215,153 @@ npm run migrate:rollback <name>  # Rollback a specific migration
 
 ---
 
+## 4.2 Backend MVC Architecture (Design)
+
+To improve code organization and team coordination, the backend follows a **Model-View-Controller (MVC)** pattern layered on top of Express.
+
+### MVC Concept Overview
+
+```
+HTTP Request
+    ↓
+Router (Route Registration)
+    ↓
+Middleware (Auth, TenantContext, RoleGuard)
+    ↓
+Controller (Request Handler)
+    ├→ Validate Input (DTO + Validator)
+    ├→ Delegate to Service
+    └→ Format Response (ResponseFormatter)
+         ↓
+       Service (Business Logic)
+       ├→ Query Model
+       ├→ Apply Rules/Checks
+       └→ Call AI/External Services
+            ↓
+          Model (Data Layer)
+          └→ MongoDB Collection Query
+                ↓
+              HTTP Response
+```
+
+### MVC Layer Breakdown
+
+| Layer | Responsibility | Examples |
+|-------|-----------------|----------|
+| **Model** | Data schema and persistence | Mongoose schemas: Shift, Employee, Availability |
+| **Controller** | HTTP request handling + input validation | ShiftController, EmployeeController |
+| **Service** | Business logic extraction + reuse | ShiftService (create, update, assess fatigue) |
+| **Router** | Route registration + middleware ordering | `/api/shifts`, `/api/employees`, `/api/fatigue` |
+| **Validator** | Input validation rules | ShiftValidator (validate shift times, employee ID) |
+| **DTO** | Data Transfer Objects (request/response contracts) | CreateShiftDTO, ShiftResponseDTO |
+| **ResponseFormatter** | Standardized API response structure | {success, data, message, statusCode} |
+
+### Revised Backend Directory Structure
+
+```
+backend/src/
+├── models/                    (M — Mongoose schemas)
+│   ├── Tenant.js
+│   ├── User.js
+│   ├── Employee.js
+│   ├── Shift.js
+│   ├── Availability.js
+│   ├── FatigueRule.js
+│   └── FatigueAssessment.js
+│
+├── controllers/               (C — HTTP request handlers)
+│   ├── AuthController.js
+│   ├── ShiftController.js
+│   ├── EmployeeController.js
+│   ├── AvailabilityController.js
+│   └── FatigueController.js
+│
+├── services/                  (Business logic layer)
+│   ├── ShiftService.js
+│   ├── EmployeeService.js
+│   ├── AuthService.js
+│   ├── migrations/
+│   │   └── migrationService.js
+│   └── ai/
+│       ├── FatigueEngine.js
+│       └── AIExplainer.js
+│
+├── routes/                    (Router registration)
+│   ├── authRoutes.js
+│   ├── shiftRoutes.js
+│   ├── employeeRoutes.js
+│   ├── availabilityRoutes.js
+│   └── fatigueRoutes.js
+│
+├── middleware/                (Cross-cutting concerns)
+│   ├── auth.js
+│   ├── tenantContext.js
+│   ├── roleGuard.js
+│   └── errorHandler.js
+│
+├── validators/                (Input validation rules)
+│   ├── ShiftValidator.js
+│   ├── EmployeeValidator.js
+│   └── AuthValidator.js
+│
+├── dto/                       (Data Transfer Objects)
+│   ├── ShiftDTO.js
+│   ├── EmployeeDTO.js
+│   └── FatigueDTO.js
+│
+├── views/                     (Response formatting)
+│   └── ResponseFormatter.js
+│
+├── cli/                       (CLI utilities)
+│   └── migrationCLI.js
+│
+└── server.js                  (MVC wiring + bootstrap)
+```
+
+### Request Flow Example (Shift Creation)
+
+```
+1. Client sends POST /api/shifts with shift data
+                ↓
+2. Router matches route → calls authMiddleware, tenantContext, roleGuard
+                ↓
+3. ShiftController.createShift(req, res)
+   └→ Calls ShiftValidator.validate(req.body)
+   └→ Calls ShiftService.createShift(tenantId, data)
+                ↓
+4. ShiftService
+   └→ Queries Model: Shift.findOne(query)
+   └→ Applies logic: FatigueEngine.assessShift()
+   └→ Returns result
+                ↓
+5. Controller formats response: ResponseFormatter.success(data)
+                ↓
+6. HTTP Response: {success: true, data: {...}, statusCode: 201}
+```
+
+### MVC Benefits for 10-Day Sprint
+
+✅ **Clear responsibility split** — Controllers handle HTTP, services handle logic, models handle data  
+✅ **Parallel development** — Members can work on different controllers/services independently  
+✅ **Code reuse** — Services can be called from multiple controllers or background jobs  
+✅ **Testability** — Each layer is independently testable (mock services, models)  
+✅ **Consistency** — All APIs follow the same pattern (request → validate → service → respond)  
+✅ **Maintainability** — Easy to find where a feature lives and what depends on it  
+
+### Middleware Execution Order (for protected routes)
+
+```
+authMiddleware    (verify JWT → extract claims)
+    ↓
+tenantContext     (inject req.tenantId from JWT)
+    ↓
+roleGuard         (check user role against endpoint requirements)
+    ↓
+Controller        (handle request with tenant + role context)
+```
+
+---
+
 ## 5. Backend API Structure (Express)
 
 ```
@@ -286,11 +433,14 @@ capstone/
 │
 ├── backend/
 │   ├── src/
-│   │   ├── models/        (Tenant, User, Employee, Shift, Availability, FatigueRule)
-│   │   ├── routes/
+│   │   ├── models/
 │   │   ├── controllers/
-│   │   ├── middleware/     (auth.js, tenantContext.js, roleGuard.js)
-│   │   ├── services/ai/    (fatigueEngine.js, aiExplainer.js)
+│   │   ├── services/
+│   │   ├── routes/
+│   │   ├── middleware/
+│   │   ├── validators/
+│   │   ├── dto/
+│   │   ├── views/
 │   │   └── server.js
 │   └── package.json
 │
@@ -304,11 +454,11 @@ capstone/
 
 | Member | Responsibility |
 |--------|----------------|
-| 1 | Backend — Auth, Tenant model, JWT + middleware |
-| 2 | Backend — Employees, Shifts, Availability APIs |
-| 3 | AI Module — Fatigue rule engine + LLM explanation service |
-| 4 | Frontend — Manager dashboard, shift calendar UI (React + Tailwind) |
-| 5 | Frontend — Employee view, fatigue report UI, integration + testing |
+| 1 | Backend — Models + Auth (Mongoose schemas, User/Tenant/Auth service) |
+| 2 | Backend — Controllers + Routes (Shift, Employee, Availability CRUD endpoints) |
+| 3 | AI Module — Fatigue service + validators (FatigueEngine, AIExplainer, DTOs) |
+| 4 | Frontend — Manager dashboard + shift calendar UI (React components, auth flow) |
+| 5 | Frontend — Employee view + fatigue report (UI, integration testing, error handling) |
 
 ---
 
