@@ -4,13 +4,13 @@
 
 **Track:** SDAI
 **Team Size:** 5 Members
-** Team Members: 
+**Team Members:**
 1) Ayushman Singh
 2) Raju Sutradhar
 3) Aryan Kumar
 4) Devansh Saxena
 5) Ambika Darare
-   
+
 **Duration:** 10 Days
 **Domain:** Workforce safety and scheduling
 
@@ -38,7 +38,7 @@ deployment of the application.
 | Database       | MongoDB (Mongoose ODM)                            |
 | Auth           | JWT (JSON Web Tokens) with tenant context claim    |
 | AI Module      | Rule-based fatigue scoring + LLM explanation layer |
-| Hosting (opt.) | Google Cloud Run/ Firebase / MongoDB Atlas                    |
+| Hosting (opt.) | Google Cloud Run / Firebase / MongoDB Atlas                   |
 
 ### Why this stack
 
@@ -153,7 +153,7 @@ Tenant (Organization)
 
 ---
 
-## 4.1 Database Migrations (Schema Evolution)
+## 5. Database Migrations (Schema Evolution)
 
 To track schema changes and enable team coordination across a 10-day sprint,
 implement an **application-level migration system** using a `migrations` collection.
@@ -178,6 +178,9 @@ implement an **application-level migration system** using a `migrations` collect
 ```
 
 ### Directory Structure
+
+Shown in isolation here; see §6 for how this fits into the full `backend/src/` layout.
+
 ```
 backend/src/
 ├── migrations/
@@ -215,7 +218,7 @@ npm run migrate:rollback <name>  # Rollback a specific migration
 
 ---
 
-## 4.2 Backend MVC Architecture (Design)
+## 6. Backend MVC Architecture (Design)
 
 To improve code organization and team coordination, the backend follows a **Model-View-Controller (MVC)** pattern layered on top of Express.
 
@@ -258,6 +261,9 @@ Controller (Request Handler)
 
 ### Revised Backend Directory Structure
 
+This is the authoritative full `backend/src/` layout — it supersedes and includes
+the migrations-only view in §5 and the abbreviated overview in §9.
+
 ```
 backend/src/
 ├── models/                    (M — Mongoose schemas)
@@ -269,6 +275,11 @@ backend/src/
 │   ├── FatigueRule.js
 │   └── FatigueAssessment.js
 │
+├── migrations/                (Schema change scripts — see §5)
+│   ├── 001_initial_schema.js
+│   ├── 002_create_shifts_and_availability.js
+│   └── 003_create_fatigue_tables.js
+│
 ├── controllers/               (C — HTTP request handlers)
 │   ├── AuthController.js
 │   ├── ShiftController.js
@@ -279,6 +290,7 @@ backend/src/
 ├── services/                  (Business logic layer)
 │   ├── ShiftService.js
 │   ├── EmployeeService.js
+│   ├── AvailabilityService.js
 │   ├── AuthService.js
 │   ├── migrations/
 │   │   └── migrationService.js
@@ -302,14 +314,18 @@ backend/src/
 ├── validators/                (Input validation rules)
 │   ├── ShiftValidator.js
 │   ├── EmployeeValidator.js
+│   ├── AvailabilityValidator.js
+│   ├── FatigueValidator.js
 │   └── AuthValidator.js
 │
 ├── dto/                       (Data Transfer Objects)
 │   ├── ShiftDTO.js
 │   ├── EmployeeDTO.js
-│   └── FatigueDTO.js
+│   ├── AvailabilityDTO.js
+│   ├── FatigueDTO.js
+│   └── AuthDTO.js
 │
-├── views/                     (Response formatting)
+├── views/                     (API response shaping — not UI views/pages)
 │   └── ResponseFormatter.js
 │
 ├── cli/                       (CLI utilities)
@@ -362,7 +378,7 @@ Controller        (handle request with tenant + role context)
 
 ---
 
-## 5. Backend API Structure (Express)
+## 7. Backend API Structure (Express)
 
 ```
 /api/auth
@@ -370,7 +386,7 @@ Controller        (handle request with tenant + role context)
   POST   /login            → returns JWT with tenantId + role
 
 /api/employees            (tenant-scoped, requires auth)
-  GET    /            
+  GET    /
   POST   /
   PUT    /:id
   DELETE /:id
@@ -395,7 +411,7 @@ Middleware order for protected routes:
 
 ---
 
-## 6. AI / Fatigue Risk Module
+## 8. AI / Fatigue Risk Module
 
 1. **Rule engine** computes a numeric risk score from `fatigueRules`
    (rest hours between shifts, consecutive shifts, weekly hour caps).
@@ -412,7 +428,9 @@ hallucinated risk numbers in a safety-relevant domain.
 
 ---
 
-## 7. Frontend Structure (React + Tailwind)
+## 9. Frontend Structure (React + Tailwind)
+
+Whole-repo overview, `backend/src/` abbreviated — see §6 for its full layout.
 
 ```
 capstone/
@@ -450,7 +468,7 @@ capstone/
 
 ---
 
-## 8. Suggested Team Split (5 Members)
+## 10. Suggested Team Split (5 Members)
 
 | Member | Responsibility |
 |--------|----------------|
@@ -462,7 +480,7 @@ capstone/
 
 ---
 
-## 9. Setup Instructions (to be run once code is scaffolded)
+## 11. Setup Instructions (to be run once code is scaffolded)
 
 ```bash
 # Backend
@@ -485,7 +503,7 @@ PORT=5000
 
 ---
 
-## 10. Limitations & Responsible Use
+## 12. Limitations & Responsible Use
 
 - Fatigue risk scoring is rule-based and does not replace medical/occupational
   health judgment.
@@ -497,7 +515,7 @@ PORT=5000
 
 ---
 
-## 11. Future Improvements
+## 13. Future Improvements
 
 - Per-tenant custom fatigue rule configuration UI
 - Role-based analytics dashboard for superadmins across tenants
