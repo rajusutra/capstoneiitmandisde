@@ -1,6 +1,6 @@
 # Capstone Project Documentation
 
-## Project 15 — Workforce Shift Planning and Fatigue Risk Management System
+## Project 15 — Workforce Shift Planning and Fatigue Risk Management System.
 
 **Track:** SDAI
 **Team Size:** 5 Members
