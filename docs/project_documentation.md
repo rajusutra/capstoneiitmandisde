@@ -153,6 +153,68 @@ Tenant (Organization)
 
 ---
 
+## 4.1 Database Migrations (Schema Evolution)
+
+To track schema changes and enable team coordination across a 10-day sprint,
+implement an **application-level migration system** using a `migrations` collection.
+
+### Migration Strategy
+
+**Approach:** Simple, lightweight migration service that:
+1. Maintains a `migrations` collection tracking executed schema changes
+2. Auto-runs pending migrations on server startup
+3. Supports manual rollback via CLI commands
+
+### `migrations` Collection Schema
+```js
+{
+  _id,
+  name: "001_initial_schema",              // semantic name
+  version: 1,                               // integer version
+  description: "Create initial collections",
+  executedAt: Date,
+  status: "completed" | "pending",
+}
+```
+
+### Directory Structure
+```
+backend/src/
+├── migrations/
+│   ├── 001_initial_schema.js
+│   ├── 002_create_shifts_and_availability.js
+│   └── 003_create_fatigue_tables.js
+├── services/
+│   └── migrations/
+│       └── migrationService.js
+└── cli/
+    └── migrationCLI.js
+```
+
+### Migration Lifecycle
+
+1. **Dev creates** a new migration file (`NNNN_description.js`) in `backend/src/migrations/`
+2. **Migration service** (initialized in `server.js`) detects pending migrations on startup
+3. **Auto-runs** pending migrations in numeric order
+4. **Logs execution** to `migrations` collection with timestamp and status
+5. **Rollback (optional)** via CLI: `npm run migrate:rollback <migration-name>`
+
+### Sample CLI Commands
+
+```bash
+npm run migrate:status    # List pending migrations
+npm run migrate:run       # Run all pending migrations
+npm run migrate:rollback <name>  # Rollback a specific migration
+```
+
+### Benefits for Distributed Team
+- **Deterministic setup** — New members run `npm run dev`; migrations auto-initialize
+- **Audit trail** — Every schema change logged with timestamp and executor
+- **Safe rollback** — Undo breaking changes without manual intervention
+- **Low overhead** — Pure Mongoose + Node.js; no external framework dependencies
+
+---
+
 ## 5. Backend API Structure (Express)
 
 ```
