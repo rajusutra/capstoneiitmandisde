@@ -38,7 +38,7 @@ deployment of the application.
 | Database       | MongoDB (Mongoose ODM)                            |
 | Auth           | JWT (JSON Web Tokens) with tenant context claim    |
 | AI Module      | Rule-based fatigue scoring + LLM explanation layer |
-| Hosting (opt.) | Render / Vercel / MongoDB Atlas                    |
+| Hosting (opt.) | Google Cloud Run/ Firebase / MongoDB Atlas                    |
 
 ### Why this stack
 
