@@ -5,12 +5,9 @@
 import { useEffect, useState } from 'react';
 import axiosClient, { errorMessage } from '../api/axiosClient';
 import { useAuth } from '../context/AuthContext';
+import StatusBadge from '../components/StatusBadge';
 
-const statusBadge = {
-  trial: 'bg-blue-100 text-blue-700',
-  active: 'bg-green-100 text-green-700',
-  suspended: 'bg-red-100 text-red-700',
-};
+const STATUS_TONE = { trial: 'warning', active: 'good', suspended: 'critical' };
 
 // Loads the Razorpay checkout script once (only needed for real payments)
 function loadRazorpayScript() {
@@ -66,12 +63,10 @@ export default function Billing() {
       const order = res.data.data;
 
       if (order.mode === 'demo') {
-        // No gateway keys on the server -> instant demo payment
         await confirmPayment({ method: 'razorpay', orderId: order.orderId, planId: order.planId });
         return;
       }
 
-      // Real Razorpay checkout popup
       await loadRazorpayScript();
       const rzp = new window.Razorpay({
         key: order.keyId,
@@ -111,7 +106,6 @@ export default function Billing() {
         return;
       }
 
-      // Real PayPal: open the approval page, then the user confirms below
       window.open(order.approveUrl, '_blank');
       setPaypalOrder(order);
     } catch (err) {
@@ -121,104 +115,99 @@ export default function Billing() {
     }
   }
 
-  if (!status) return <div className="p-8 text-gray-500">Loading billing info…</div>;
+  if (!status) return <div className="p-8 text-ink-muted">Loading billing info…</div>;
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Billing & Subscription</h1>
+      <h1 className="text-2xl font-bold text-ink">Billing & Subscription</h1>
 
       {/* Status card */}
-      <div className="bg-white rounded-xl shadow p-6 space-y-2">
+      <div className="bg-surface-card border border-white/10 rounded-2xl p-6 space-y-2">
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-lg">{tenant?.name}</span>
-          <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${statusBadge[status.status]}`}>
-            {status.status}
-          </span>
+          <span className="font-semibold text-lg text-ink">{tenant?.name}</span>
+          <StatusBadge tone={STATUS_TONE[status.status]} label={status.status} />
         </div>
         {status.status === 'trial' && (
-          <p className="text-gray-600">
-            Free trial — <b>{status.trialDaysLeft} day{status.trialDaysLeft === 1 ? '' : 's'} left</b>{' '}
+          <p className="text-ink-secondary">
+            Free trial — <b className="text-ink">{status.trialDaysLeft} day{status.trialDaysLeft === 1 ? '' : 's'} left</b>{' '}
             (ends {new Date(status.trialEndsAt).toLocaleDateString()}).
           </p>
         )}
         {status.subscriptionEndsAt && (
-          <p className="text-gray-600">
-            Subscription paid until <b>{new Date(status.subscriptionEndsAt).toLocaleDateString()}</b>.
+          <p className="text-ink-secondary">
+            Subscription paid until <b className="text-ink">{new Date(status.subscriptionEndsAt).toLocaleDateString()}</b>.
           </p>
         )}
         {status.status === 'suspended' && (
-          <p className="text-red-600">
+          <p className="text-status-critical">
             This organization was deactivated by the platform admin. Contact support.
           </p>
         )}
       </div>
 
-      {message && <p className="text-green-700 bg-green-50 p-3 rounded">{message}</p>}
-      {error && <p className="text-red-600 bg-red-50 p-3 rounded">{error}</p>}
+      {message && <p className="text-status-good bg-status-good/10 p-3 rounded-lg">{message}</p>}
+      {error && <p className="text-status-critical bg-status-critical/10 p-3 rounded-lg">{error}</p>}
 
       {/* Plan picker + payment options (org admin only) */}
       {isAdmin && status.status !== 'suspended' && (
-        <div className="bg-white rounded-xl shadow p-6 space-y-4">
-          <h2 className="font-semibold">Choose a plan</h2>
+        <div className="bg-surface-card border border-white/10 rounded-2xl p-6 space-y-4">
+          <h2 className="font-semibold text-ink">Choose a plan</h2>
 
-          {/* Plan cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {status.plans.map((plan) => (
               <button
                 key={plan._id || plan.name}
                 onClick={() => setSelectedPlanId(plan._id)}
-                className={`text-left border-2 rounded-xl p-4 transition ${
+                className={`text-left border rounded-xl p-4 transition ${
                   selectedPlan?._id === plan._id
-                    ? 'border-blue-600 bg-blue-50'
-                    : 'border-gray-200 hover:border-blue-300'
+                    ? 'border-accent bg-accent/10'
+                    : 'border-white/10 hover:border-accent/50'
                 }`}
               >
-                <p className="font-bold">{plan.name}</p>
-                <p className="text-2xl font-bold mt-1">₹{plan.priceINR}</p>
-                <p className="text-xs text-gray-500">or ${plan.priceUSD} via PayPal</p>
-                <p className="text-sm text-gray-600 mt-2">{plan.durationDays} days of access</p>
-                {plan.description && <p className="text-xs text-gray-400 mt-1">{plan.description}</p>}
+                <p className="font-bold text-ink">{plan.name}</p>
+                <p className="text-2xl font-bold mt-1 text-ink">₹{plan.priceINR}</p>
+                <p className="text-xs text-ink-muted">or ${plan.priceUSD} via PayPal</p>
+                <p className="text-sm text-ink-secondary mt-2">{plan.durationDays} days of access</p>
+                {plan.description && <p className="text-xs text-ink-muted mt-1">{plan.description}</p>}
               </button>
             ))}
           </div>
 
-          {/* Payment buttons for the selected plan */}
           <div className="flex flex-wrap gap-3 pt-2">
             <button
               onClick={payRazorpay}
               disabled={busy || !selectedPlan}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-5 py-2 rounded font-semibold"
+              className="bg-accent hover:bg-accent-hover disabled:opacity-50 text-white px-5 py-2 rounded-lg font-semibold transition"
             >
               Pay ₹{selectedPlan?.priceINR} with Razorpay
             </button>
             <button
               onClick={payPaypal}
               disabled={busy || !selectedPlan}
-              className="bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-300 text-white px-5 py-2 rounded font-semibold"
+              className="bg-status-warning hover:brightness-110 disabled:opacity-50 text-black px-5 py-2 rounded-lg font-semibold transition"
             >
               Pay ${selectedPlan?.priceUSD} with PayPal
             </button>
           </div>
 
-          {/* Shown only for a REAL PayPal payment waiting for approval */}
           {paypalOrder && (
-            <div className="border rounded p-3 text-sm space-y-2 bg-yellow-50">
-              <p>A PayPal window was opened. Approve the payment there, then click:</p>
+            <div className="border border-white/10 rounded-xl p-3 text-sm space-y-2 bg-status-warning/10">
+              <p className="text-ink-secondary">A PayPal window was opened. Approve the payment there, then click:</p>
               <button
                 onClick={() =>
                   confirmPayment({ method: 'paypal', orderId: paypalOrder.orderId, planId: paypalOrder.planId }).catch(
                     (err) => setError(errorMessage(err))
                   )
                 }
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1 rounded"
+                className="bg-status-good hover:brightness-110 text-white px-4 py-1 rounded-lg"
               >
                 I completed the PayPal payment
               </button>
             </div>
           )}
 
-          <div className="border-t pt-4 text-sm text-gray-600">
-            <b>Manual payment (bank transfer / UPI):</b> pay ₹{selectedPlan?.priceINR} for the{' '}
+          <div className="border-t border-white/10 pt-4 text-sm text-ink-secondary">
+            <b className="text-ink">Manual payment (bank transfer / UPI):</b> pay ₹{selectedPlan?.priceINR} for the{' '}
             {selectedPlan?.name} plan offline and share the reference with the platform admin — they will
             activate your subscription from the admin panel.
           </div>
@@ -226,18 +215,18 @@ export default function Billing() {
       )}
 
       {/* Payment history */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="font-semibold mb-3">Payment history</h2>
-        {status.payments.length === 0 && <p className="text-gray-400 text-sm">No payments yet.</p>}
-        <ul className="divide-y text-sm">
+      <div className="bg-surface-card border border-white/10 rounded-2xl p-6">
+        <h2 className="font-semibold text-ink mb-3">Payment history</h2>
+        {status.payments.length === 0 && <p className="text-ink-muted text-sm">No payments yet.</p>}
+        <ul className="divide-y divide-white/10 text-sm">
           {status.payments.map((p) => (
             <li key={p._id} className="py-2 flex justify-between">
-              <span className="capitalize">
+              <span className="capitalize text-ink-secondary">
                 {p.method}
-                {p.planName && <span className="text-gray-500"> · {p.planName} ({p.durationDays}d)</span>}
-                {p.note && <span className="text-gray-400"> — {p.note}</span>}
+                {p.planName && <span className="text-ink-muted"> · {p.planName} ({p.durationDays}d)</span>}
+                {p.note && <span className="text-ink-muted"> — {p.note}</span>}
               </span>
-              <span>
+              <span className="text-ink">
                 {p.amount} {p.currency} · {new Date(p.paidAt).toLocaleDateString()}
               </span>
             </li>

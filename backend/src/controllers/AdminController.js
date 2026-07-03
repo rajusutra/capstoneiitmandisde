@@ -5,8 +5,36 @@ const ResponseFormatter = require('../views/ResponseFormatter');
 const AdminController = {
   async listTenants(req, res, next) {
     try {
-      const tenants = await AdminService.listTenants();
-      return ResponseFormatter.success(res, tenants);
+      const { page, limit, search } = req.query;
+      const result = await AdminService.listTenants({
+        page: Number(page) || 1,
+        limit: Number(limit) || 20,
+        search: search || '',
+      });
+      return ResponseFormatter.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async listUsers(req, res, next) {
+    try {
+      const { page, limit, search } = req.query;
+      const result = await AdminService.listUsers({
+        page: Number(page) || 1,
+        limit: Number(limit) || 20,
+        search: search || '',
+      });
+      return ResponseFormatter.success(res, result);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async dashboardStats(req, res, next) {
+    try {
+      const stats = await AdminService.getDashboardStats();
+      return ResponseFormatter.success(res, stats);
     } catch (err) {
       next(err);
     }
@@ -16,6 +44,15 @@ const AdminController = {
     try {
       const tenant = await AdminService.activate(req.params.id);
       return ResponseFormatter.success(res, { status: tenant.status, subscriptionEndsAt: tenant.subscriptionEndsAt }, 'Organization activated (+30 days)');
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async impersonate(req, res, next) {
+    try {
+      const result = await AdminService.impersonateTenant(req.params.id, req.user);
+      return ResponseFormatter.success(res, result, `Impersonating ${result.tenant.name}`);
     } catch (err) {
       next(err);
     }

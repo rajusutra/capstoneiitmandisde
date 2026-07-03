@@ -2,12 +2,10 @@
 // Each shift has an "Assess" button that runs the AI fatigue check.
 import { useEffect, useState } from 'react';
 import axiosClient, { errorMessage } from '../api/axiosClient';
+import StatusBadge from '../components/StatusBadge';
+import ActionButton from '../components/ActionButton';
 
-const levelColors = {
-  low: 'bg-green-100 text-green-700',
-  medium: 'bg-yellow-100 text-yellow-700',
-  high: 'bg-red-100 text-red-700',
-};
+const RISK_TONE = { low: 'good', medium: 'warning', high: 'critical' };
 
 export default function ShiftCalendar() {
   const [shifts, setShifts] = useState([]);
@@ -16,6 +14,9 @@ export default function ShiftCalendar() {
   const [error, setError] = useState('');
   const [assessment, setAssessment] = useState(null); // result popup for the last assessed shift
   const [assessingId, setAssessingId] = useState(null);
+
+  const inputClass =
+    'bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-ink focus:outline-none focus:ring-2 focus:ring-accent';
 
   async function load() {
     const [shiftRes, empRes] = await Promise.all([
@@ -75,94 +76,88 @@ export default function ShiftCalendar() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Shift Calendar</h1>
+      <h1 className="text-2xl font-bold text-ink">Shift Calendar</h1>
 
       {/* Add shift form */}
-      <form onSubmit={handleAdd} className="bg-white rounded-xl shadow p-4 flex flex-wrap gap-3 items-end">
+      <form onSubmit={handleAdd} className="bg-surface-card border border-white/10 rounded-2xl p-4 flex flex-wrap gap-3 items-end">
         <div>
-          <label className="text-xs text-gray-500 block">Employee</label>
-          <select value={form.employeeId} onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
-            className="border rounded px-3 py-2" required>
-            <option value="">Select...</option>
+          <label className="text-xs text-ink-muted block mb-1">Employee</label>
+          <select
+            value={form.employeeId}
+            onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
+            className={inputClass}
+            required
+          >
+            <option value="" className="bg-surface-card">Select...</option>
             {employees.map((emp) => (
-              <option key={emp.id} value={emp.id}>{emp.name}</option>
+              <option key={emp.id} value={emp.id} className="bg-surface-card">{emp.name}</option>
             ))}
           </select>
         </div>
         <div>
-          <label className="text-xs text-gray-500 block">Date</label>
-          <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className="border rounded px-3 py-2" required />
+          <label className="text-xs text-ink-muted block mb-1">Date</label>
+          <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className={inputClass} required />
         </div>
         <div>
-          <label className="text-xs text-gray-500 block">Start</label>
-          <input type="time" value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })}
-            className="border rounded px-3 py-2" required />
+          <label className="text-xs text-ink-muted block mb-1">Start</label>
+          <input type="time" value={form.start} onChange={(e) => setForm({ ...form, start: e.target.value })} className={inputClass} required />
         </div>
         <div>
-          <label className="text-xs text-gray-500 block">End</label>
-          <input type="time" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })}
-            className="border rounded px-3 py-2" required />
+          <label className="text-xs text-ink-muted block mb-1">End</label>
+          <input type="time" value={form.end} onChange={(e) => setForm({ ...form, end: e.target.value })} className={inputClass} required />
         </div>
         <div>
-          <label className="text-xs text-gray-500 block">Type</label>
-          <select value={form.shiftType} onChange={(e) => setForm({ ...form, shiftType: e.target.value })}
-            className="border rounded px-3 py-2">
-            <option value="morning">Morning</option>
-            <option value="evening">Evening</option>
-            <option value="night">Night</option>
-            <option value="custom">Custom</option>
+          <label className="text-xs text-ink-muted block mb-1">Type</label>
+          <select value={form.shiftType} onChange={(e) => setForm({ ...form, shiftType: e.target.value })} className={inputClass}>
+            <option value="morning" className="bg-surface-card">Morning</option>
+            <option value="evening" className="bg-surface-card">Evening</option>
+            <option value="night" className="bg-surface-card">Night</option>
+            <option value="custom" className="bg-surface-card">Custom</option>
           </select>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
+        <button className="bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-semibold transition">
           Add shift
         </button>
-        {error && <p className="text-red-600 text-sm w-full">{error}</p>}
+        {error && <p className="text-status-critical text-sm w-full">{error}</p>}
       </form>
 
       {/* Assessment result panel */}
       {assessment && (
-        <div className="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500 space-y-2">
+        <div className="bg-surface-card border border-white/10 border-l-4 border-l-accent rounded-2xl p-4 space-y-2">
           <div className="flex items-center gap-3">
-            <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${levelColors[assessment.riskLevel]}`}>
-              {assessment.riskLevel} risk
-            </span>
-            <span className="text-gray-500 text-sm">Score: {assessment.riskScore}/100</span>
-            <button onClick={() => setAssessment(null)} className="ml-auto text-gray-400 hover:text-gray-600">✕</button>
+            <StatusBadge tone={RISK_TONE[assessment.riskLevel]} label={`${assessment.riskLevel} risk`} />
+            <span className="text-ink-muted text-sm">Score: {assessment.riskScore}/100</span>
+            <button onClick={() => setAssessment(null)} className="ml-auto text-ink-muted hover:text-ink">✕</button>
           </div>
-          <p className="text-sm text-gray-700">{assessment.aiExplanation}</p>
-          <p className="text-sm text-gray-700"><b>Suggestion:</b> {assessment.suggestedAlternative}</p>
+          <p className="text-sm text-ink-secondary">{assessment.aiExplanation}</p>
+          <p className="text-sm text-ink-secondary"><b className="text-ink">Suggestion:</b> {assessment.suggestedAlternative}</p>
         </div>
       )}
 
       {/* Shifts grouped by day */}
       {Object.keys(byDay).length === 0 && (
-        <p className="text-gray-400 text-center py-8">No shifts yet. Add your first one above.</p>
+        <p className="text-ink-muted text-center py-8">No shifts yet. Add your first one above.</p>
       )}
       {Object.entries(byDay).map(([day, dayShifts]) => (
-        <div key={day} className="bg-white rounded-xl shadow p-4">
-          <h2 className="font-semibold text-gray-700 mb-3">{day}</h2>
+        <div key={day} className="bg-surface-card border border-white/10 rounded-2xl p-4">
+          <h2 className="font-semibold text-ink mb-3">{day}</h2>
           <div className="space-y-2">
             {dayShifts.map((shift) => (
-              <div key={shift.id} className="flex items-center gap-4 border rounded-lg px-4 py-2">
-                <span className="font-medium w-40">{shift.employeeName}</span>
-                <span className="text-sm text-gray-600">
+              <div key={shift.id} className="flex items-center gap-4 border border-white/10 rounded-xl px-4 py-2">
+                <span className="font-medium text-ink w-40">{shift.employeeName}</span>
+                <span className="text-sm text-ink-secondary">
                   {new Date(shift.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   {' – '}
                   {new Date(shift.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded capitalize">{shift.shiftType}</span>
+                <span className="text-xs bg-white/10 text-ink-secondary px-2 py-1 rounded-md capitalize">{shift.shiftType}</span>
                 <div className="ml-auto flex gap-2">
-                  <button
-                    onClick={() => handleAssess(shift.id)}
-                    disabled={assessingId === shift.id}
-                    className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white text-sm px-3 py-1 rounded"
-                  >
+                  <ActionButton tone="accent" onClick={() => handleAssess(shift.id)} disabled={assessingId === shift.id}>
                     {assessingId === shift.id ? 'Assessing…' : 'Assess'}
-                  </button>
-                  <button onClick={() => handleDelete(shift.id)} className="text-red-500 text-sm hover:underline">
+                  </ActionButton>
+                  <ActionButton tone="critical" onClick={() => handleDelete(shift.id)}>
                     Delete
-                  </button>
+                  </ActionButton>
                 </div>
               </div>
             ))}

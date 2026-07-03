@@ -1,9 +1,9 @@
-// Top navigation bar shown on all pages after login.
-// Superadmins see only the Platform Admin link; org users see the normal pages.
+// Top navigation bar for organization users (managers/admins/employees).
+// Superadmins never see this — they get the sidebar in layouts/AdminLayout.jsx.
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const orgLinks = [
+const links = [
   { to: '/', label: 'Dashboard' },
   { to: '/shifts', label: 'Shift Calendar' },
   { to: '/employees', label: 'Employees' },
@@ -11,24 +11,20 @@ const orgLinks = [
   { to: '/billing', label: 'Billing' },
 ];
 
-const superadminLinks = [{ to: '/admin', label: 'Platform Admin' }];
-
 export default function Navbar() {
   const { user, tenant, logout } = useAuth();
   const location = useLocation();
 
-  const links = user?.role === 'superadmin' ? superadminLinks : orgLinks;
-
   return (
-    <nav className="bg-slate-800 text-white px-6 py-3 flex items-center justify-between">
+    <nav className="bg-surface-card border-b border-white/10 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-6">
-        <span className="font-bold text-lg">🗓 Shift Planner</span>
+        <span className="font-bold text-lg text-ink">🗓 Shift Planner</span>
         {links.map((link) => (
           <Link
             key={link.to}
             to={link.to}
-            className={`text-sm hover:text-blue-300 ${
-              location.pathname === link.to ? 'text-blue-400 font-semibold' : 'text-slate-200'
+            className={`text-sm transition ${
+              location.pathname === link.to ? 'text-accent font-semibold' : 'text-ink-secondary hover:text-ink'
             }`}
           >
             {link.label}
@@ -36,10 +32,10 @@ export default function Navbar() {
         ))}
       </div>
       <div className="flex items-center gap-4 text-sm">
-        <span className="text-slate-300">
+        <span className="text-ink-muted">
           {user?.name} · {tenant?.name}
         </span>
-        <button onClick={logout} className="bg-slate-600 hover:bg-slate-500 px-3 py-1 rounded">
+        <button onClick={logout} className="bg-white/10 hover:bg-white/20 text-ink px-3 py-1.5 rounded-lg">
           Logout
         </button>
       </div>

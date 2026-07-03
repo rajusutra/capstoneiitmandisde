@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Dark background on the root so there's no white flash before React mounts */
+html, body, #root {
+  background-color: #0d0d0d;
+}

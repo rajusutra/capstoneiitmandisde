@@ -22,19 +22,19 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-md w-96 space-y-4">
-        <h1 className="text-2xl font-bold text-center">🗓 Shift Planner</h1>
-        <p className="text-sm text-gray-500 text-center">Log in to your organization</p>
+    <div className="min-h-screen flex items-center justify-center bg-surface">
+      <form onSubmit={handleSubmit} className="bg-surface-card border border-white/10 p-8 rounded-2xl w-96 space-y-4">
+        <h1 className="text-2xl font-bold text-center text-ink">🗓 Shift Planner</h1>
+        <p className="text-sm text-ink-muted text-center">Log in to your organization</p>
 
-        {error && <p className="text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
+        {error && <p className="text-status-critical text-sm bg-status-critical/10 p-2 rounded-lg">{error}</p>}
 
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent"
           required
         />
         <input
@@ -42,16 +42,16 @@ export default function Login() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent"
           required
         />
-        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold">
+        <button className="w-full bg-accent hover:bg-accent-hover text-white py-2 rounded-lg font-semibold transition">
           Log in
         </button>
 
-        <p className="text-sm text-center text-gray-500">
+        <p className="text-sm text-center text-ink-muted">
           New organization?{' '}
-          <Link to="/register" className="text-blue-600 hover:underline">
+          <Link to="/register" className="text-accent hover:underline">
             Register here
           </Link>
         </p>

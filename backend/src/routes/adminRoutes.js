@@ -9,8 +9,11 @@ const router = express.Router();
 
 router.use(auth, roleGuard('superadmin'));
 
+router.get('/dashboard', AdminController.dashboardStats);
 router.get('/tenants', AdminController.listTenants);
+router.get('/users', AdminController.listUsers);
 router.post('/tenants/:id/activate', AdminController.activate);
+router.post('/tenants/:id/impersonate', AdminController.impersonate);
 router.post('/tenants/:id/deactivate', AdminController.deactivate);
 router.post('/tenants/:id/record-payment', AdminController.recordPayment);
 router.get('/payments', AdminController.listPayments);

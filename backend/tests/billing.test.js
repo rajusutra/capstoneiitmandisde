@@ -97,12 +97,41 @@ describe('Trial and subscription', () => {
 });
 
 describe('Superadmin', () => {
-  test('superadmin can list all organizations', async () => {
+  test('superadmin can list all organizations (paginated)', async () => {
     const res = await request(app).get('/api/admin/tenants').set('Authorization', `Bearer ${superToken}`);
     expect(res.status).toBe(200);
-    const names = res.body.data.map((t) => t.name);
+    expect(res.body.data).toHaveProperty('tenants');
+    expect(res.body.data).toHaveProperty('total');
+    expect(res.body.data).toHaveProperty('pages');
+    const names = res.body.data.tenants.map((t) => t.name);
     expect(names).toContain('Billing Co');
     expect(names).not.toContain('Platform'); // the platform itself is hidden
+  });
+
+  test('tenants list supports search', async () => {
+    const res = await request(app)
+      .get('/api/admin/tenants')
+      .query({ search: 'Billing' })
+      .set('Authorization', `Bearer ${superToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.tenants.every((t) => t.name.includes('Billing'))).toBe(true);
+  });
+
+  test('superadmin can list all users across tenants (paginated)', async () => {
+    const res = await request(app).get('/api/admin/users').set('Authorization', `Bearer ${superToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('users');
+    const emails = res.body.data.users.map((u) => u.email);
+    expect(emails).toContain('owner@billingco.com');
+  });
+
+  test('dashboard stats return platform-wide counts', async () => {
+    const res = await request(app).get('/api/admin/dashboard').set('Authorization', `Bearer ${superToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalTenants).toBeGreaterThanOrEqual(1);
+    expect(res.body.data.statusBreakdown).toHaveProperty('trial');
+    expect(res.body.data.statusBreakdown).toHaveProperty('active');
+    expect(res.body.data.statusBreakdown).toHaveProperty('suspended');
   });
 
   test('a normal org admin cannot access the admin panel', async () => {
