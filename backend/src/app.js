@@ -8,6 +8,8 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const shiftRoutes = require('./routes/shiftRoutes');
 const availabilityRoutes = require('./routes/availabilityRoutes');
 const fatigueRoutes = require('./routes/fatigueRoutes');
+const billingRoutes = require('./routes/billingRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -23,6 +25,8 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/shifts', shiftRoutes);
 app.use('/api/availability', availabilityRoutes);
 app.use('/api/fatigue', fatigueRoutes);
+app.use('/api/billing', billingRoutes);   // reachable even when the trial expired (to pay)
+app.use('/api/admin', adminRoutes);       // superadmin only — manage all organizations
 
 // Must be registered last so it catches errors from all routes above
 app.use(errorHandler);

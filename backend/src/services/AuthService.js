@@ -29,7 +29,10 @@ const AuthService = {
     const existingTenant = await Tenant.findOne({ slug });
     if (existingTenant) throw httpError(409, 'An organization with this name already exists.');
 
-    const tenant = await Tenant.create({ name: tenantName, slug });
+    // Every new organization starts with a free 10-day trial
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 10);
+    const tenant = await Tenant.create({ name: tenantName, slug, status: 'trial', trialEndsAt });
 
     const passwordHash = await bcrypt.hash(password, 10);
     const user = await User.create({
