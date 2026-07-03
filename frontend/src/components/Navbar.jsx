@@ -1,17 +1,23 @@
 // Top navigation bar shown on all pages after login.
+// Superadmins see only the Platform Admin link; org users see the normal pages.
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const links = [
+const orgLinks = [
   { to: '/', label: 'Dashboard' },
   { to: '/shifts', label: 'Shift Calendar' },
   { to: '/employees', label: 'Employees' },
   { to: '/fatigue', label: 'Fatigue Report' },
+  { to: '/billing', label: 'Billing' },
 ];
+
+const superadminLinks = [{ to: '/admin', label: 'Platform Admin' }];
 
 export default function Navbar() {
   const { user, tenant, logout } = useAuth();
   const location = useLocation();
+
+  const links = user?.role === 'superadmin' ? superadminLinks : orgLinks;
 
   return (
     <nav className="bg-slate-800 text-white px-6 py-3 flex items-center justify-between">
