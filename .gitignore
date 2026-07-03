@@ -9,3 +9,7 @@ frontend/dist/
 
 # Logs
 *.log
+
+# Firebase local cache
+.firebase/
+firebase-debug.log
