@@ -41,7 +41,12 @@ const FatigueController = {
       const result = FatigueEngine.assess(shift, otherShifts, effectiveRule);
       const explanation = await AIExplainer.explain(employee.name, result, shift);
 
-      // 4. Save the assessment so it appears in the report history
+      // 4. Replace this shift's previous assessment(s) — we keep one current
+      // result per shift, not one row per time it happens to get (re-)assessed
+      // (background auto-assess runs on every page load, so without this the
+      // history collection fills up with duplicates of an unchanged shift).
+      await FatigueAssessment.deleteMany({ tenantId, shiftId: shift._id });
+
       const assessment = await FatigueAssessment.create({
         tenantId,
         employeeId: employee._id,

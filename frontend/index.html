@@ -4,8 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shift Planner</title>
+    <script>
+      // Applies the persisted theme before first paint so there's no flash
+      // of the wrong theme on reload (React/ThemeContext only re-syncs this
+      // on toggle, since by mount time it's already correct).
+      (function () {
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
   </head>
-  <body class="bg-gray-100">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

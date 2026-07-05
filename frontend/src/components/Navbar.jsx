@@ -2,6 +2,7 @@
 // Superadmins never see this — they get the sidebar in layouts/AdminLayout.jsx.
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
 
 const links = [
   { to: '/', label: 'Dashboard' },
@@ -16,7 +17,7 @@ export default function Navbar() {
   const location = useLocation();
 
   return (
-    <nav className="bg-surface-card border-b border-white/10 px-6 py-3 flex items-center justify-between">
+    <nav className="bg-surface-card border-b border-line/10 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-6">
         <span className="font-bold text-lg text-ink">🗓 Shift Planner</span>
         {links.map((link) => (
@@ -35,7 +36,8 @@ export default function Navbar() {
         <span className="text-ink-muted">
           {user?.name} · {tenant?.name}
         </span>
-        <button onClick={logout} className="bg-white/10 hover:bg-white/20 text-ink px-3 py-1.5 rounded-lg">
+        <ThemeToggle />
+        <button onClick={logout} className="bg-line/10 hover:bg-line/20 text-ink px-3 py-1.5 rounded-lg">
           Logout
         </button>
       </div>

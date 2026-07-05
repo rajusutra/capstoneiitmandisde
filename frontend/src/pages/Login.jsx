@@ -23,7 +23,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface">
-      <form onSubmit={handleSubmit} className="bg-surface-card border border-white/10 p-8 rounded-2xl w-96 space-y-4">
+      <form onSubmit={handleSubmit} className="bg-surface-card border border-line/10 p-8 rounded-2xl w-96 space-y-4">
         <h1 className="text-2xl font-bold text-center text-ink">🗓 Shift Planner</h1>
         <p className="text-sm text-ink-muted text-center">Log in to your organization</p>
 
@@ -34,7 +34,7 @@ export default function Login() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full bg-line/5 border border-line/10 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent"
           required
         />
         <input
@@ -42,7 +42,7 @@ export default function Login() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          className="w-full bg-line/5 border border-line/10 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent"
           required
         />
         <button className="w-full bg-accent hover:bg-accent-hover text-white py-2 rounded-lg font-semibold transition">

@@ -122,7 +122,7 @@ export default function Billing() {
       <h1 className="text-2xl font-bold text-ink">Billing & Subscription</h1>
 
       {/* Status card */}
-      <div className="bg-surface-card border border-white/10 rounded-2xl p-6 space-y-2">
+      <div className="bg-surface-card border border-line/10 rounded-2xl p-6 space-y-2">
         <div className="flex items-center gap-3">
           <span className="font-semibold text-lg text-ink">{tenant?.name}</span>
           <StatusBadge tone={STATUS_TONE[status.status]} label={status.status} />
@@ -150,7 +150,7 @@ export default function Billing() {
 
       {/* Plan picker + payment options (org admin only) */}
       {isAdmin && status.status !== 'suspended' && (
-        <div className="bg-surface-card border border-white/10 rounded-2xl p-6 space-y-4">
+        <div className="bg-surface-card border border-line/10 rounded-2xl p-6 space-y-4">
           <h2 className="font-semibold text-ink">Choose a plan</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -161,7 +161,7 @@ export default function Billing() {
                 className={`text-left border rounded-xl p-4 transition ${
                   selectedPlan?._id === plan._id
                     ? 'border-accent bg-accent/10'
-                    : 'border-white/10 hover:border-accent/50'
+                    : 'border-line/10 hover:border-accent/50'
                 }`}
               >
                 <p className="font-bold text-ink">{plan.name}</p>
@@ -191,7 +191,7 @@ export default function Billing() {
           </div>
 
           {paypalOrder && (
-            <div className="border border-white/10 rounded-xl p-3 text-sm space-y-2 bg-status-warning/10">
+            <div className="border border-line/10 rounded-xl p-3 text-sm space-y-2 bg-status-warning/10">
               <p className="text-ink-secondary">A PayPal window was opened. Approve the payment there, then click:</p>
               <button
                 onClick={() =>
@@ -206,7 +206,7 @@ export default function Billing() {
             </div>
           )}
 
-          <div className="border-t border-white/10 pt-4 text-sm text-ink-secondary">
+          <div className="border-t border-line/10 pt-4 text-sm text-ink-secondary">
             <b className="text-ink">Manual payment (bank transfer / UPI):</b> pay ₹{selectedPlan?.priceINR} for the{' '}
             {selectedPlan?.name} plan offline and share the reference with the platform admin — they will
             activate your subscription from the admin panel.
@@ -215,10 +215,10 @@ export default function Billing() {
       )}
 
       {/* Payment history */}
-      <div className="bg-surface-card border border-white/10 rounded-2xl p-6">
+      <div className="bg-surface-card border border-line/10 rounded-2xl p-6">
         <h2 className="font-semibold text-ink mb-3">Payment history</h2>
         {status.payments.length === 0 && <p className="text-ink-muted text-sm">No payments yet.</p>}
-        <ul className="divide-y divide-white/10 text-sm">
+        <ul className="divide-y divide-line/10 text-sm">
           {status.payments.map((p) => (
             <li key={p._id} className="py-2 flex justify-between">
               <span className="capitalize text-ink-secondary">

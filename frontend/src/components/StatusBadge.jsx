@@ -7,7 +7,7 @@ const TONES = {
   good: 'bg-status-good/15 text-status-good',
   warning: 'bg-status-warning/15 text-status-warning',
   critical: 'bg-status-critical/15 text-status-critical',
-  neutral: 'bg-white/10 text-ink-secondary',
+  neutral: 'bg-line/10 text-ink-secondary',
 };
 
 export default function StatusBadge({ tone = 'neutral', label }) {

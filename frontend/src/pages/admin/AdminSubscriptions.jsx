@@ -6,7 +6,7 @@ import ActionButton from '../../components/ActionButton';
 
 const emptyPlanForm = { name: '', priceINR: '', priceUSD: '', durationDays: '', description: '' };
 const inputClass =
-  'bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent';
+  'bg-line/5 border border-line/10 rounded-lg px-3 py-2 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent';
 
 export default function AdminSubscriptions() {
   const [plans, setPlans] = useState([]);
@@ -90,10 +90,10 @@ export default function AdminSubscriptions() {
       {error && <p className="text-status-critical bg-status-critical/10 p-3 rounded-lg">{error}</p>}
 
       {/* ---- Subscription plans CRUD ---- */}
-      <div className="bg-surface-card border border-white/10 rounded-2xl p-6 space-y-4">
+      <div className="bg-surface-card border border-line/10 rounded-2xl p-6 space-y-4">
         <h2 className="font-semibold text-ink text-lg">Subscription plans</h2>
 
-        <form onSubmit={savePlan} className="flex flex-wrap gap-3 items-end border-b border-white/10 pb-4">
+        <form onSubmit={savePlan} className="flex flex-wrap gap-3 items-end border-b border-line/10 pb-4">
           <div>
             <label className="text-xs text-ink-muted block mb-1">Plan name</label>
             <input
@@ -172,7 +172,7 @@ export default function AdminSubscriptions() {
           </thead>
           <tbody>
             {plans.map((plan) => (
-              <tr key={plan._id} className="border-t border-white/10">
+              <tr key={plan._id} className="border-t border-line/10">
                 <td className="py-2 font-medium text-ink">{plan.name}</td>
                 <td className="py-2 text-ink-secondary">₹{plan.priceINR} / ${plan.priceUSD}</td>
                 <td className="py-2 text-ink-secondary">{plan.durationDays} days</td>
@@ -180,7 +180,7 @@ export default function AdminSubscriptions() {
                 <td className="py-2">
                   <span
                     className={`px-2 py-1 rounded-md text-xs font-bold ${
-                      plan.isActive ? 'bg-status-good/15 text-status-good' : 'bg-white/10 text-ink-muted'
+                      plan.isActive ? 'bg-status-good/15 text-status-good' : 'bg-line/10 text-ink-muted'
                     }`}
                   >
                     {plan.isActive ? 'ACTIVE' : 'HIDDEN'}
@@ -205,10 +205,10 @@ export default function AdminSubscriptions() {
       </div>
 
       {/* ---- Recent payments ---- */}
-      <div className="bg-surface-card border border-white/10 rounded-2xl p-6">
+      <div className="bg-surface-card border border-line/10 rounded-2xl p-6">
         <h2 className="font-semibold text-ink mb-3">Recent payments (all organizations)</h2>
         {payments.length === 0 && <p className="text-ink-muted text-sm">No payments yet.</p>}
-        <ul className="divide-y divide-white/10 text-sm">
+        <ul className="divide-y divide-line/10 text-sm">
           {payments.map((p) => (
             <li key={p._id} className="py-2 flex justify-between">
               <span className="text-ink-secondary">

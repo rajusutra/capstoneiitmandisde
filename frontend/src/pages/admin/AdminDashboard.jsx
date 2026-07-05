@@ -10,9 +10,8 @@
 //    are INR and paypal is USD, so summing them on one axis would silently
 //    mix currencies (the same mistake as a dual-axis chart).
 //
-// Colors are the DARK-mode steps from the dataviz skill's validated reference
-// palette (references/palette.md) — the whole app runs on a dark theme, so
-// every chart token here is the dark variant, not an automatic light->dark flip.
+// Colors follow the current light/dark theme via CHART_COLORS — status
+// colors (active/trial/suspended) are fixed and never themed.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -20,34 +19,32 @@ import {
 } from 'recharts';
 import axiosClient, { errorMessage } from '../../api/axiosClient';
 import StatusBadge from '../../components/StatusBadge';
+import { useTheme } from '../../context/ThemeContext';
+import { CHART_COLORS } from '../../theme/chartColors';
 
 const STATUS_COLORS = { active: '#0ca30c', trial: '#fab219', suspended: '#d03b3b' };
 const STATUS_TONE = { active: 'good', trial: 'warning', suspended: 'critical' };
 const STATUS_LABELS = { active: 'Active', trial: 'Trial', suspended: 'Suspended' };
-const CATEGORICAL_BLUE = '#3987e5'; // categorical slot 1, dark variant
-const INK_MUTED = '#898781';
-const INK_SECONDARY = '#c3c2b7';
-const GRIDLINE = '#2c2c2a';
-const CHART_SURFACE = '#1a1a19';
 
 function ChartCard({ title, children }) {
   return (
-    <div className="bg-surface-card border border-white/10 rounded-2xl p-6">
+    <div className="bg-surface-card border border-line/10 rounded-2xl p-6">
       <h2 className="font-semibold text-ink mb-4">{title}</h2>
       {children}
     </div>
   );
 }
 
-const tooltipStyle = {
-  fontSize: 13,
-  borderRadius: 8,
-  backgroundColor: CHART_SURFACE,
-  border: '1px solid rgba(255,255,255,0.1)',
-  color: '#ffffff',
-};
-
 export default function AdminDashboard() {
+  const { theme } = useTheme();
+  const c = CHART_COLORS[theme];
+  const tooltipStyle = {
+    fontSize: 13,
+    borderRadius: 8,
+    backgroundColor: c.surface,
+    border: `1px solid ${c.tooltipBorder}`,
+    color: c.ink,
+  };
   const [stats, setStats] = useState(null);
   const [error, setError] = useState('');
 
@@ -90,7 +87,7 @@ export default function AdminDashboard() {
           <Link
             key={card.label}
             to={card.to}
-            className="bg-surface-card border border-white/10 rounded-2xl p-6 hover:border-accent/50 transition"
+            className="bg-surface-card border border-line/10 rounded-2xl p-6 hover:border-accent/50 transition"
           >
             <p className="text-2xl font-bold text-ink">{card.value}</p>
             <p className="text-ink-muted text-sm mt-1">{card.label}</p>
@@ -102,11 +99,11 @@ export default function AdminDashboard() {
         {/* Chart A — Organizations by status (status palette, axis-labeled) */}
         <ChartCard title="Organizations by status">
           <BarChart width={420} height={220} data={statusData} layout="vertical" margin={{ left: 8 }}>
-            <CartesianGrid stroke={GRIDLINE} horizontal={false} />
-            <XAxis type="number" allowDecimals={false} tick={{ fill: INK_MUTED, fontSize: 12 }} axisLine={{ stroke: GRIDLINE }} tickLine={false} />
-            <YAxis type="category" dataKey="status" tick={{ fill: '#ffffff', fontSize: 13 }} axisLine={{ stroke: GRIDLINE }} tickLine={false} width={80} />
-            <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle} />
-            <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24} label={{ position: 'right', fill: '#ffffff', fontSize: 12 }}>
+            <CartesianGrid stroke={c.gridline} horizontal={false} />
+            <XAxis type="number" allowDecimals={false} tick={{ fill: c.inkMuted, fontSize: 12 }} axisLine={{ stroke: c.gridline }} tickLine={false} />
+            <YAxis type="category" dataKey="status" tick={{ fill: c.ink, fontSize: 13 }} axisLine={{ stroke: c.gridline }} tickLine={false} width={80} />
+            <Tooltip cursor={{ fill: c.cursorWash }} contentStyle={tooltipStyle} />
+            <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24} label={{ position: 'right', fill: c.ink, fontSize: 12 }}>
               {statusData.map((entry) => (
                 <Cell key={entry.key} fill={STATUS_COLORS[entry.key]} />
               ))}
@@ -117,18 +114,18 @@ export default function AdminDashboard() {
         {/* Chart B — Weekly signups by status (multi-line, same status colors) */}
         <ChartCard title="New organizations per week (last 12 weeks)">
           <LineChart width={420} height={220} data={stats.signupsByWeek} margin={{ left: -12 }}>
-            <CartesianGrid stroke={GRIDLINE} vertical={false} />
+            <CartesianGrid stroke={c.gridline} vertical={false} />
             <XAxis
               dataKey="week"
-              tick={{ fill: INK_MUTED, fontSize: 11 }}
-              axisLine={{ stroke: GRIDLINE }}
+              tick={{ fill: c.inkMuted, fontSize: 11 }}
+              axisLine={{ stroke: c.gridline }}
               tickLine={false}
               tickFormatter={(d) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
             />
-            <YAxis allowDecimals={false} tick={{ fill: INK_MUTED, fontSize: 12 }} axisLine={{ stroke: GRIDLINE }} tickLine={false} />
+            <YAxis allowDecimals={false} tick={{ fill: c.inkMuted, fontSize: 12 }} axisLine={{ stroke: c.gridline }} tickLine={false} />
             <Tooltip contentStyle={tooltipStyle} labelFormatter={(d) => `Week of ${new Date(d).toLocaleDateString()}`} />
             <Legend
-              formatter={(value) => <span style={{ color: INK_SECONDARY, fontSize: 12 }}>{STATUS_LABELS[value]}</span>}
+              formatter={(value) => <span style={{ color: c.inkSecondary, fontSize: 12 }}>{STATUS_LABELS[value]}</span>}
               iconType="line"
             />
             {['active', 'trial', 'suspended'].map((status) => (
@@ -139,7 +136,7 @@ export default function AdminDashboard() {
                 name={status}
                 stroke={STATUS_COLORS[status]}
                 strokeWidth={2}
-                dot={{ r: 4, strokeWidth: 2, stroke: CHART_SURFACE }}
+                dot={{ r: 4, strokeWidth: 2, stroke: c.surface }}
                 activeDot={{ r: 5 }}
               />
             ))}
@@ -149,11 +146,11 @@ export default function AdminDashboard() {
         {/* Chart C — Payments by method (single hue, count not amount — see file header) */}
         <ChartCard title="Payments by method">
           <BarChart width={420} height={220} data={methodData} margin={{ left: -12 }}>
-            <CartesianGrid stroke={GRIDLINE} vertical={false} />
-            <XAxis dataKey="method" tick={{ fill: '#ffffff', fontSize: 13 }} axisLine={{ stroke: GRIDLINE }} tickLine={false} />
-            <YAxis allowDecimals={false} tick={{ fill: INK_MUTED, fontSize: 12 }} axisLine={{ stroke: GRIDLINE }} tickLine={false} />
-            <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={tooltipStyle} formatter={(v) => [`${v} payment${v === 1 ? '' : 's'}`, '']} />
-            <Bar dataKey="count" fill={CATEGORICAL_BLUE} radius={[4, 4, 0, 0]} barSize={48} label={{ position: 'top', fill: '#ffffff', fontSize: 12 }} />
+            <CartesianGrid stroke={c.gridline} vertical={false} />
+            <XAxis dataKey="method" tick={{ fill: c.ink, fontSize: 13 }} axisLine={{ stroke: c.gridline }} tickLine={false} />
+            <YAxis allowDecimals={false} tick={{ fill: c.inkMuted, fontSize: 12 }} axisLine={{ stroke: c.gridline }} tickLine={false} />
+            <Tooltip cursor={{ fill: c.cursorWash }} contentStyle={tooltipStyle} formatter={(v) => [`${v} payment${v === 1 ? '' : 's'}`, '']} />
+            <Bar dataKey="count" fill={c.accent} radius={[4, 4, 0, 0]} barSize={48} label={{ position: 'top', fill: c.ink, fontSize: 12 }} />
           </BarChart>
         </ChartCard>
 
@@ -163,7 +160,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <p className="text-xs font-semibold text-ink-muted uppercase mb-2">Recent organizations</p>
-              <ul className="divide-y divide-white/10 text-sm">
+              <ul className="divide-y divide-line/10 text-sm">
                 {stats.recentTenants.map((t) => (
                   <li key={t._id} className="py-2 flex justify-between gap-2 items-center">
                     <span className="truncate text-ink-secondary">{t.name}</span>
@@ -175,7 +172,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <p className="text-xs font-semibold text-ink-muted uppercase mb-2">Recent payments</p>
-              <ul className="divide-y divide-white/10 text-sm">
+              <ul className="divide-y divide-line/10 text-sm">
                 {stats.recentPayments.map((p) => (
                   <li key={p._id} className="py-2 flex justify-between gap-2">
                     <span className="truncate text-ink-secondary">{p.tenantId?.name || 'Unknown org'}</span>

@@ -39,15 +39,15 @@ export default function AdminUsers() {
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Search by name or email…"
-          className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 w-64 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent"
+          className="bg-line/5 border border-line/10 rounded-lg px-3 py-2 w-64 text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-accent"
         />
       </div>
 
       {error && <p className="text-status-critical bg-status-critical/10 p-3 rounded-lg">{error}</p>}
 
-      <div className="bg-surface-card border border-white/10 rounded-2xl overflow-x-auto">
+      <div className="bg-surface-card border border-line/10 rounded-2xl overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-white/5 text-ink-muted text-left">
+          <thead className="bg-line/5 text-ink-muted text-left">
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
@@ -58,7 +58,7 @@ export default function AdminUsers() {
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className="border-t border-white/10">
+              <tr key={u.id} className="border-t border-line/10">
                 <td className="px-4 py-3 font-medium text-ink">{u.name}</td>
                 <td className="px-4 py-3 text-ink-secondary">{u.email}</td>
                 <td className="px-4 py-3 text-ink-secondary">{u.tenantName}</td>
@@ -83,7 +83,7 @@ export default function AdminUsers() {
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="px-3 py-1 border border-white/10 rounded-lg disabled:opacity-40 hover:border-accent/50"
+            className="px-3 py-1 border border-line/10 rounded-lg disabled:opacity-40 hover:border-accent/50"
           >
             Prev
           </button>
@@ -91,7 +91,7 @@ export default function AdminUsers() {
           <button
             disabled={page >= pages}
             onClick={() => setPage((p) => p + 1)}
-            className="px-3 py-1 border border-white/10 rounded-lg disabled:opacity-40 hover:border-accent/50"
+            className="px-3 py-1 border border-line/10 rounded-lg disabled:opacity-40 hover:border-accent/50"
           >
             Next
           </button>

@@ -7,7 +7,7 @@ const TONES = {
   good: 'bg-status-good/10 text-status-good hover:bg-status-good/20',
   warning: 'bg-status-warning/10 text-status-warning hover:bg-status-warning/20',
   critical: 'bg-status-critical/10 text-status-critical hover:bg-status-critical/20',
-  neutral: 'bg-white/5 text-ink-secondary hover:bg-white/10',
+  neutral: 'bg-line/5 text-ink-secondary hover:bg-line/10',
 };
 
 export default function ActionButton({ tone = 'accent', onClick, children, disabled = false }) {
