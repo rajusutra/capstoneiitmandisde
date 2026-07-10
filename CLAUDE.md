@@ -89,7 +89,7 @@ Defined per-route-file via `router.use(...)`, e.g. `employeeRoutes.js`. Order ma
 
 `services/ai/FatigueEngine.js` is pure and synchronous: given a shift, the employee's other shifts, and the tenant's `FatigueRule`, it checks rest hours, overlap, 7-day rolling hours, and consecutive days worked, returning `{ riskScore, riskLevel, flags }`. This is intentionally rule-based (auditable, no hallucination risk) — see `docs/project_documentation.md` §8 for the rationale. Don't fold AI into this file.
 
-`services/ai/AIExplainer.js` is the only place that calls an LLM (Claude via `@anthropic-ai/sdk`), and only to turn the engine's `flags`/score into prose + a suggested alternative — never to produce the score itself. If `ANTHROPIC_API_KEY` is unset or the API call throws, it falls back to `templateExplanation()` (plain string interpolation) so the feature never hard-fails. `FatigueController.assess` is the only caller of both.
+`services/ai/AIExplainer.js` is the only place that calls an LLM, and only to turn the engine's `flags`/score into prose + a suggested alternative — never to produce the score itself. If `OLLAMA_HOST` is set, it tries a local Ollama model first (`OLLAMA_MODEL`, default `gemma2:2b` — chosen for speed on modest/CPU-only hardware), falls back to Claude via `@anthropic-ai/sdk` if `ANTHROPIC_API_KEY` is set and Ollama is unreachable, and finally falls back to `templateExplanation()` (plain string interpolation) so the feature never hard-fails. `FatigueController.assess` is the only caller of both.
 
 ### Migrations
 
