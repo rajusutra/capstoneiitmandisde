@@ -6,6 +6,8 @@ shift, and an AI layer explains risky schedules and suggests safer alternatives.
 
 Full design documentation: [docs/project_documentation.md](docs/project_documentation.md)
 
+Team testing guide (try the live app, no setup needed): [docs/team_testing_guide.md](docs/team_testing_guide.md)
+
 ## Tech Stack
 
 - **Frontend:** React + Tailwind CSS (Vite)
@@ -84,6 +86,10 @@ npm test
   manual payments.
 
 ## Demo Walkthrough
+
+> Testing the **deployed app** instead of a local setup? Follow the
+> [team testing guide](docs/team_testing_guide.md) — it has the live URL,
+> demo logins, and a checklist of things to try.
 
 1. Register a new organization (or log in with the seeded `admin@demo.com` / `password123`).
 2. Add employees on the **Employees** page.
